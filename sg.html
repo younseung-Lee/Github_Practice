@@ -1,12 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>변상균님의 개인 페이지</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@100..900&display=swap');
+
+        * {
+            font-family: "Noto Sans KR", serif;
+        }
+
+        .mytitle {
+            height: 250px;
+
+            color: black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://www.shutterstock.com/image-vector/coniferous-forest-silhouette-background-aerial-260nw-1560689093.jpg');
+            background-position: center;
+            background-size: cover;
+        }
+
+        body {
+            background-color: black;
+        }
+
+        .mytitle>button {
+            width: 150px;
+            height: 50px;
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+
+            margin-top: 20px;
+        }
+
+        .mycards {
+            width: 1200px;
+            margin: 30px auto 0px auto;
+        }
+
+        .mypostingbox {
+            width: 500px;
+            margin: 20px auto 20px auto;
+            background-color: transparent;
+            outline-color: white;
+            padding: 20px;
+            border: 1px solid white;
+            border-radius: 5px;
+
+        }
+
+        .mybtn {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        .mybtn>button {
+            margin-right: 5px;
+        }
+
+        .nav-item {
+            color: grey
+        }
+
+        .findtab {
+            color: white;
+            width: 450px;
+            margin: auto auto auto 0px;
+        }
+
+        .form-floating>input {
+            background-color: black;
+        }
+
+        .form-floating>label {
+            color: white;
+        }
+
+        .input-group>label {
+            background-color: black;
+            color: white;
+        }
+
+        .input-group>select {
+            background-color: black;
+            color: white;
+        }
+
+        .mypostingbox>button {
+            width: 100%;
+        }
+    </style>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDZvro72mmZpBvKlbsx3naHqqVmnv8FfOM",
+            authDomain: "sparta-4b2be.firebaseapp.com",
+            projectId: "sparta-4b2be",
+            storageBucket: "sparta-4b2be.firebasestorage.app",
+            messagingSenderId: "933561149905",
+            appId: "1:933561149905:web:2ddd19a297eb1540b498f0",
+            measurementId: "G-XCTT8TDM62"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        $("#postingbtn").click(async function () {
+            let image = $('#image').val();
+            let title = $('#title').val();
+            let star = $('#star').val();
+            let comment = $('#comment').val();
+
+            let doc = {
+                'image': image,
+                'title': title,
+                'star': star,
+                'comment': comment,
+            };
+            await addDoc(collection(db, "travels"), doc);
+            alert('Save Complete!');
+            window.location.reload();
+        })
+
+        let url = "http://spartacodingclub.shop/sparta_api/weather/seoul";
+        fetch(url).then(res => res.json()).then(data => {
+            let temp = data['temp'];
+            if (temp > 20) {
+                $('#msg').text('더워요');
+            } else {
+                $('#msg').text('추워요');
+            }
+        })
+
+        let docs = await getDocs(collection(db, "travels"));
+        docs.forEach((doc) => {
+            let row = doc.data();
+            let image = row['image'];
+            let title = row['title'];
+            let comment = row['comment'];
+            let star = row['star'];
+
+            let temp_html = `
+            <div class="col">
+                <div class="card h-100">
+                    <img src="${image}"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">${title}</h5>
+                        <p class="card-text">${star}</p>
+                        <p class="card-text">${comment}</p>
+                    </div>
+                </div>
+            </div>`;
+            $('#card').append(temp_html);
+        });
+
+        $("#savebtn").click(async function () {
+            $('#postingbox').toggle();
+        })
+
+    </script>
 </head>
+
 <body>
-    <h1>변상균님의 개인 페이지입니다</h1>
-    <p>테스트 확인</p>
+
+    <header class="p-3 mb-3 border-bottom">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="#" class="nav-link px-2 text-warning">MyTravel</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">page1</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">page2</a></li>
+                    <li><a href="#" class="nav-link px-2 text-white">page3</a></li>
+                    <li><a href="#" class="nav-link px-2 text-secondary">오늘의 기온 : <span id='msg'></span></a></li>
+                </ul>
+
+                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                    <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+                </form>
+
+                <div class="dropdown text-end">
+                    <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://rimage.gnst.jp/livejapan.com/public/article/detail/a/00/04/a0004943/img/basic/a0004943_main.jpg"
+                            alt="mdo" width="32" height="32" class="rounded-circle">
+                    </a>
+                    <ul class="dropdown-menu text-small">
+                        <li><a class="dropdown-item" href="#">New project...</a></li>
+                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="mytitle">
+        <div class="findtab">
+            <div class="h-80 p-5 rounded-3">
+
+                <button id="savebtn" class="btn btn-outline-light" type="button">Find</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mypostingbox" id="postingbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="image" placeholder="여행 이미지 주소">
+            <label for="floatingInput">posting image</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="title" placeholder="여행지 이름">
+            <label for="floatingInput">destination name</label>
+        </div>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="inputGroupSelect01">Rank</label>
+            <select class="form-select" id="star">
+                <option selected>Select Rank</option>
+                <option value="⭐">⭐</option>
+                <option value="⭐⭐">⭐⭐</option>
+                <option value="⭐⭐⭐">⭐⭐⭐</option>
+                <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
+                <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+            </select>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="comment" placeholder="추천 이유">
+            <label for="floatingInput">recommend</label>
+        </div>
+
+        <button id="postingbtn" class="btn btn-outline-light">Add</button>
+    </div>
+
+    <div class="mycards">
+        <div id="card" class="row row-cols-1 row-cols-md-3 g-4">
+        </div>
+    </div>
+
+    <div class="container2">
+        <footer class="row row-cols-1 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
+            <div class="col mb-3">
+                <a href="/" class="d-flex align-items-center mb-3 link-body-emphasis text-decoration-none">
+                </a>
+                <p class="text-body-secondary">©Byun SangGyun 2025.02.20</p>
+            </div>
+            <div class="col mb-3">
+            </div>
+            <div class="col mb-3">
+                <h5>Section</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Home</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Features</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Pricing</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">FAQs</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">About</a></li>
+                </ul>
+            </div>
+
+            <div class="col mb-3">
+                <h5>Section</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Home</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Features</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Pricing</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">FAQs</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">About</a></li>
+                </ul>
+            </div>
+
+            <div class="col mb-3">
+                <h5>Section</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Home</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Features</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Pricing</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">FAQs</a></li>
+                    <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">About</a></li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
 </body>
+
 </html>
