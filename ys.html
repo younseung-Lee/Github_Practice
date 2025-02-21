@@ -31,9 +31,107 @@
     margin-right: 100px;
     border-radius: 30px;
 }
-</style>
-<script>
+.mypostingbox {
+    width: 400px; /* 적절한 크기의 박스 */
+    margin: 30px auto; /* 가운데 정렬 */
+    padding: 20px;
+    background-color: #fffbe0; /* 메모지 느낌의 연한 노란색 */
+    border-radius: 15px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+    text-align: center;
+}
 
+.postingbox-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.mybtn {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.mycard-container {
+    width: 90%;
+    margin: 30px auto; /* 상하 여백 및 중앙 정렬 */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* 카드 간 간격 */
+}
+
+.mycard {
+    width: 300px; /* 카드의 고정 너비 */
+    background-color: #fffbe0; /* 메모지 느낌의 연한 노란색 */
+    border-radius: 15px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+}
+
+
+</style>
+
+<script type="module">
+    // Firebase SDK 라이브러리 가져오기
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // Firebase 구성 정보 설정
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+    apiKey: "AIzaSyD1fTvwguVJ2IjLRme7AAmit8TtVvbXdeY",
+    authDomain: "sparta-48af2.firebaseapp.com",
+    projectId: "sparta-48af2",
+    storageBucket: "sparta-48af2.firebasestorage.app",
+    messagingSenderId: "448124033142",
+    appId: "1:448124033142:web:18fe8f34d93ff3d364e757",
+    measurementId: "G-6KC3GW1RRG"
+};
+
+    // Firebase 인스턴스 초기화
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    $(document).ready(async function () {
+        $("#postingbtn").click(async function () {
+            let name = $('#name').val();
+            let star = $('#star').val();
+            let comment = $('#comment').val();
+            let doc = {
+                'name': name,
+                'star': star,
+                'comment': comment
+            };
+            await addDoc(collection(db, "profile"), doc); // profile 라는 컬렉션이름으로 doc에 대한 db 생성
+            alert('저장 완료!'); // 클릭하게 되면 저장  완료 
+            window.location.reload(); // 클릭 후 저장 문구가 뜨면 윈도우 재로딩
+        })
+            
+        let docs = await getDocs(collection(db, "profile"));
+        docs.forEach((doc, index) => {
+            let row = doc.data();
+
+            let name = row['name'];
+            let star = row['star'];                 // 변수 형태 : object 
+            let comment = row['comment'];
+
+            let temp_html = ` 
+            <div class="mycard col-md-6">
+                <div class="card border-dark mb-3">
+                    <div class="card-header">${name}</div>
+                    <div class="card-body">
+                        <h5 class="card-title">${star}</h5>
+                        <p class="card-text">${comment}</p>
+                    </div>
+                </div>
+            </div>`;
+            $('#mycard-container').append(temp_html);
+
+        });
+    });
 </script>
 <body>
     <div class="container">
@@ -61,6 +159,34 @@
                 <h2>사용한 기술<br>HTML / JavaScript / CSS / Firebase</h2>
             </div>
         </div>
+        
+        <div class="mypostingbox">
+            <h5 class="postingbox-title">방명록</h5>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="name" placeholder="이름"><label
+                    for="floatingInput">이름</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="comment" placeholder="내용"><label
+                    for="floatingInput">내용</label>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupSelect01">별점</label>
+                    <select class="form-select" id="star">
+                        <option selected>별점선택</option>
+                        <option value="⭐">⭐</option>
+                        <option value="⭐⭐">⭐⭐</option>
+                        <option value="⭐⭐⭐">⭐⭐⭐</option>
+                        <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
+                        <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+                    </select>
+                </div>
+                <div class="mybtn">
+                    <button id="postingbtn" type="button" class="btn btn-dark">확인</button>
+                    <button type="button" class="btn btn-outline-dark">닫기</button>
+                </div>
+            </div>
+    </div>
+    <div class="mycard-container row" id="mycard-container">
     </div>
 </body>
 </html>
